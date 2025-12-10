@@ -1,8 +1,8 @@
+import math
 import register
 
-
-
-funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111"}
+funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111",
+          "lw":"010", "addi":"000", "jalr":"000"}
 
 def r_type(instruction):
     """
@@ -92,4 +92,93 @@ def i_type(instruction):
     """
 
     # ENCODING LEFT RN
+    opcode = {"lw":"0000011", "addi":"0010011", "jalr":"1100111"}
+    _type = instruction[0]
     
+    encoding = ["-"] * 5
+    
+    # opcode
+    if _type in opcode:
+        encoding[4] = opcode[_type]
+    else:
+        print("Invalid instruction")
+        return ""
+    
+    # funct3
+    encoding[2] = funct3[_type]
+    
+    # lw block
+    if _type == "lw":
+        if len(instruction) != 3:
+            print("Invalid format for lw intruction")
+            return ""
+         
+        rd = instruction[1]
+        imm_rs1 = instruction[2]
+        if '(' not in imm_rs1 or ')' not in imm_rs1:
+            print("Invalid format for lw intruction")
+            return ""
+        ind1 = imm_rs1.index('(')
+        ind2 = imm_rs1.index(')')
+        rs1 = imm_rs1[ind1 + 1:ind2]
+        if rd not in register.mapping or rs1 not in register.mapping:
+            print("Invalid register arguments")
+        
+        imm = imm_rs1[:ind1]
+        if imm[0] == '-':
+            imm = int(imm[1:])
+            if imm > 2048:
+                print("Immediate value out of bounds")
+                return ""
+            l = int(math.log2(imm) + 1)
+            imm = bin((imm ^ ((1 << l) - 1)) + 1)[2:].zfill(l)
+            imm = '1' * (12 - l) + imm
+        else:
+            imm = int(imm)
+            if imm > 2047:
+                print("Immediate value out of bounds")
+                return ""
+            imm = bin(imm)[2:]
+            imm = '0' * (12 - len(imm)) + imm
+        
+        # imm
+        encoding[0] = imm
+        
+        # registers
+        encoding[1] = register.mapping[rs1]
+        encoding[3] = register.mapping[rd]
+        
+    # addi and jalr block
+    elif _type == "addi" or _type == "jalr":
+        if len(instruction) != 4:
+            print(f"Invalid format for {_type} intruction")
+            return ""
+        
+        rd, rs1 = instruction[1], instruction[2]
+        
+        imm = instruction[3]
+        if imm[0] == '-':
+            imm = int(imm[1:])
+            if imm > 2048:
+                print("Immediate value out of bounds")
+                return ""
+            l = int(math.log2(imm) + 1)
+            imm = bin((imm ^ ((1 << l) - 1)) + 1)[2:].zfill(l)
+            imm = '1' * (12 - l) + imm
+        else:
+            imm = int(imm)
+            if imm > 2047:
+                print("Immediate value out of bounds")
+                return ""
+            imm = bin(imm)[2:]
+            imm = '0' * (12 - len(imm)) + imm
+        
+        # imm
+        encoding[0] = imm
+        
+        # registers
+        encoding[1] = register.mapping[rs1]
+        encoding[3] = register.mapping[rd]
+        
+    return ''.join(encoding)
+        

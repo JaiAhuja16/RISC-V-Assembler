@@ -13,10 +13,12 @@ fw = open("output.txt", "w")
 line = fr.readline()
 
 while line:
-    instruct = line
+    instruct = line.replace(',', ' ')
+    instruct = instruct.split()
     if instructions[instruct[0]] == "R":
         fw.write(encode.r_type(instruct))
+        fw.write('\n')
     elif instructions[instruct[0]] == "I":
         fw.write(encode.i_type(instruct))
-
+        fw.write('\n')
     line = fr.readline()
