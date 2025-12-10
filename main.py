@@ -21,4 +21,7 @@ while line:
     elif instructions[instruct[0]] == "I":
         fw.write(encode.i_type(instruct))
         fw.write('\n')
+    elif instructions[instruct[0]] == "S":
+        fw.write(encode.s_type(instruct))
+        fw.write('\n')
     line = fr.readline()

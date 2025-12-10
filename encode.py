@@ -2,7 +2,8 @@ import math
 import register
 
 funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111",
-          "lw":"010", "addi":"000", "jalr":"000"}
+          "lw":"010", "addi":"000", "jalr":"000",
+          "sw":"010"}
 
 def r_type(instruction):
     """
@@ -91,7 +92,6 @@ def i_type(instruction):
 
     """
 
-    # ENCODING LEFT RN
     opcode = {"lw":"0000011", "addi":"0010011", "jalr":"1100111"}
     _type = instruction[0]
     
@@ -182,3 +182,103 @@ def i_type(instruction):
         
     return ''.join(encoding)
         
+        
+def s_type(instruction):
+    """
+    Docstring for s_type
+
+    -> ENCODING
+
+         ______________________________________________________________________________________
+        |    [31:25]    |  [24:20] | [19:15] |  [14:12]  |  [11:7]  |   [6:0]   |  Instruction | 
+        |   imm[11:5]   |    rs2   |   rs1   |  funct3   | imm[4:0] |  opcode   |              |  
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+        |   imm[11:5]   |    rs2   |   rs1   |    010    | imm[4:0] |  0100011  |      sw      |                      
+        |_______________|__________|_________|___________|__________|___________|______________|
+
+        - opcode = 0100011
+
+        -    INSTRUCTIONS
+            
+            sw rs2, imm[11:0](rs1)
+
+    """
+    
+    if len(instruction) != 3:
+        print("Invalid format for sw intruction")
+        return ""
+    
+    encoding = ['-'] * 6
+    
+    # opcode
+    encoding[5] = "0100011"
+    
+    # funct3
+    encoding[3] = "010"
+        
+    rs2 = instruction[1]
+    
+    imm_rs1 = instruction[2]
+    if '(' not in imm_rs1 or ')' not in imm_rs1:
+        print("Invalid format for sw intruction")
+        return ""
+    ind1 = imm_rs1.index('(')
+    ind2 = imm_rs1.index(')')
+    rs1 = imm_rs1[ind1 + 1:ind2]
+    if rs2 not in register.mapping or rs1 not in register.mapping:
+        print("Invalid register arguments")
+    
+    imm = imm_rs1[:ind1]
+    if imm[0] == '-':
+        imm = int(imm[1:])
+        if imm > 2048:
+            print("Immediate value out of bounds")
+            return ""
+        l = int(math.log2(imm) + 1)
+        imm = bin((imm ^ ((1 << l) - 1)) + 1)[2:].zfill(l)
+        imm = '1' * (12 - l) + imm
+    else:
+        imm = int(imm)
+        if imm > 2047:
+            print("Immediate value out of bounds")
+            return ""
+        imm = bin(imm)[2:]
+        imm = '0' * (12 - len(imm)) + imm
+    
+    # imm
+    encoding[0] = imm[:7]
+    encoding[4] = imm[7:]
+    
+    # registers
+    encoding[1] = register.mapping[rs2]
+    encoding[2] = register.mapping[rs1]
+    
+    return ''.join(encoding)
+
+
+def b_type(instruction):
+    """
+    Docstring for b_type
+
+    -> ENCODING
+
+         _________________________________________________________________________________________
+        |    [31:25]    |  [24:20] | [19:15] |  [14:12]  |    [11:7]   |   [6:0]   |  Instruction | 
+        |  imm[12|11:5] |    rs2   |   rs1   |  funct3   | imm[4:1|11] |  opcode   |              |  
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+        |  imm[12|11:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |      beq     |  
+        |  imm[12|11:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |      bne     |                      
+        |  imm[12|11:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |      blt     |                                          
+        |_______________|__________|_________|___________|_____________|___________|______________|
+
+        - opcode = 1100011
+
+        -    INSTRUCTIONS
+            
+            beq rs1, rs2, imm[12:1]
+            bne rs1, rs2, imm[12:1]
+
+    """
+    
+    # TO DO ENCODING
+    
