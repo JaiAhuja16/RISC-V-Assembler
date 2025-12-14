@@ -7,21 +7,58 @@ instructions = {"add":"R", "sub":"R", "slt":"R", "srl":"R", "or":"R", "and":"R",
                 "jal":"J"
                 }
 
+# ------------------------------------------------------- #
+# STORING LABELS                                          #
+# ------------------------------------------------------- #
+                                                            
+fr = open("input.txt", "r")
+                                                        
+line = fr.readline()
+
+labels = {}
+pc = 0
+
+while line:
+    instruct = line.replace(',', ' ').split()
+    if instruct[0][-1] == ':':
+        labels[instruct[0]] = pc
+    pc += 4
+    line = fr.readline()
+
+fr.close()
+
+
+
+# ------------------------------------------------------- #
+# PARSING INSTRUCTIONS                                    #
+# ------------------------------------------------------- #
 fr = open("input.txt", "r")
 fw = open("output.txt", "w")
 
 line = fr.readline()
 
+labels = {}
+pc = 0
+
 while line:
-    instruct = line.replace(',', ' ')
-    instruct = instruct.split()
+    instruct = line.replace(',', ' ').split()
+    if instruct[0][-1] == ':':
+        instruct = instruct[1:]
+        
     if instructions[instruct[0]] == "R":
         fw.write(encode.r_type(instruct))
         fw.write('\n')
+
     elif instructions[instruct[0]] == "I":
         fw.write(encode.i_type(instruct))
         fw.write('\n')
+
     elif instructions[instruct[0]] == "S":
         fw.write(encode.s_type(instruct))
         fw.write('\n')
+
+    elif instructions[instruct[0]] == "B":
+        fw.write(encode.b_type(instruct, labels))
+    pc += 4
     line = fr.readline()
+

@@ -3,7 +3,8 @@ import register
 
 funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111",
           "lw":"010", "addi":"000", "jalr":"000",
-          "sw":"010"}
+          "sw":"010",
+          "beq":"000", "bne":"001", "blt":"100"}
 
 def r_type(instruction):
     """
@@ -56,6 +57,8 @@ def r_type(instruction):
     # funct3
     if _type in funct3:
         encoding[3] = funct3[_type]
+    else:
+        
 
     if rd not in register.mapping or rs1 not in register.mapping or rs2 not in register.mapping:
         print("Invalid register arguments")
@@ -214,7 +217,7 @@ def s_type(instruction):
     encoding[5] = "0100011"
     
     # funct3
-    encoding[3] = "010"
+    encoding[3] = funct3["sw"]
         
     rs2 = instruction[1]
     
@@ -256,7 +259,7 @@ def s_type(instruction):
     return ''.join(encoding)
 
 
-def b_type(instruction):
+def b_type(instruction, labels):
     """
     Docstring for b_type
 
@@ -264,11 +267,11 @@ def b_type(instruction):
 
          _________________________________________________________________________________________
         |    [31:25]    |  [24:20] | [19:15] |  [14:12]  |    [11:7]   |   [6:0]   |  Instruction | 
-        |  imm[12|11:5] |    rs2   |   rs1   |  funct3   | imm[4:1|11] |  opcode   |              |  
+        |  imm[12|10:5] |    rs2   |   rs1   |  funct3   | imm[4:1|11] |  opcode   |              |  
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-        |  imm[12|11:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |      beq     |  
-        |  imm[12|11:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |      bne     |                      
-        |  imm[12|11:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |      blt     |                                          
+        |  imm[12|10:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |      beq     |  
+        |  imm[12|10:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |      bne     |                      
+        |  imm[12|10:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |      blt     |                                          
         |_______________|__________|_________|___________|_____________|___________|______________|
 
         - opcode = 1100011
@@ -278,7 +281,30 @@ def b_type(instruction):
             beq rs1, rs2, imm[12:1]
             bne rs1, rs2, imm[12:1]
 
+        - IF arg is LABEL -> we need its address
+        - IF NOT we just use the NUMERIC VALUE
     """
     
     # TO DO ENCODING
+    # beq ra,sp,start
+    # imm = 0 - 8 = -8 --> 1111111111000 
+    # 11111110001000001000110011100011
+    # 11111110001000001000110011100011
+
+    if len(instruction) != 4:
+        print("Invalid format for B-type intruction")
+        return ""
     
+    _type, rs1, rs2, imm = instruction
+    
+    encoding = ['-'] * 6
+
+    # opcode
+    encoding[5] = "1100011"
+
+    # funct3
+    if _type in funct3:
+        encoding[3] = funct3[_type]
+    else:
+
+
