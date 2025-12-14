@@ -19,9 +19,9 @@ labels = {}
 pc = 0
 
 while line:
-    instruct = line.replace(',', ' ').split()
+    instruct = (line.replace(',', ' ')).split()
     if instruct[0][-1] == ':':
-        labels[instruct[0]] = pc
+        labels[instruct[0][:len(instruct[0]) - 1]] = pc
     pc += 4
     line = fr.readline()
 
@@ -37,7 +37,6 @@ fw = open("output.txt", "w")
 
 line = fr.readline()
 
-labels = {}
 pc = 0
 
 while line:
@@ -58,7 +57,13 @@ while line:
         fw.write('\n')
 
     elif instructions[instruct[0]] == "B":
-        fw.write(encode.b_type(instruct, labels))
+        fw.write(encode.b_type(instruct, labels, pc))
+        fw.write('\n')
+        
+    elif instructions[instruct[0]] == "J":
+        fw.write(encode.j_type(instruct, labels, pc))
+        fw.write('\n')
+        
     pc += 4
     line = fr.readline()
 

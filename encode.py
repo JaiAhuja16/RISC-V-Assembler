@@ -55,10 +55,7 @@ def r_type(instruction):
         encoding[0] = "0000000"
 
     # funct3
-    if _type in funct3:
-        encoding[3] = funct3[_type]
-    else:
-        
+    encoding[3] = funct3[_type]
 
     if rd not in register.mapping or rs1 not in register.mapping or rs2 not in register.mapping:
         print("Invalid register arguments")
@@ -101,11 +98,7 @@ def i_type(instruction):
     encoding = ["-"] * 5
     
     # opcode
-    if _type in opcode:
-        encoding[4] = opcode[_type]
-    else:
-        print("Invalid instruction")
-        return ""
+    encoding[4] = opcode[_type]
     
     # funct3
     encoding[2] = funct3[_type]
@@ -259,20 +252,20 @@ def s_type(instruction):
     return ''.join(encoding)
 
 
-def b_type(instruction, labels):
+def b_type(instruction, labels, pc):
     """
     Docstring for b_type
 
     -> ENCODING
 
-         _________________________________________________________________________________________
-        |    [31:25]    |  [24:20] | [19:15] |  [14:12]  |    [11:7]   |   [6:0]   |  Instruction | 
-        |  imm[12|10:5] |    rs2   |   rs1   |  funct3   | imm[4:1|11] |  opcode   |              |  
-        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
-        |  imm[12|10:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |      beq     |  
-        |  imm[12|10:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |      bne     |                      
-        |  imm[12|10:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |      blt     |                                          
-        |_______________|__________|_________|___________|_____________|___________|______________|
+         ________________________________________________________________________________________
+        |    [31:25]    |  [24:20] | [19:15] |  [14:12]  |    [11:7]   |   [6:0]   | Instruction | 
+        |  imm[12|10:5] |    rs2   |   rs1   |  funct3   | imm[4:1|11] |  opcode   |             |  
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+        |  imm[12|10:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |     beq     |  
+        |  imm[12|10:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |     bne     |                      
+        |  imm[12|10:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |     blt     |                                          
+        |_______________|__________|_________|___________|_____________|___________|_____________|
 
         - opcode = 1100011
 
@@ -284,12 +277,6 @@ def b_type(instruction, labels):
         - IF arg is LABEL -> we need its address
         - IF NOT we just use the NUMERIC VALUE
     """
-    
-    # TO DO ENCODING
-    # beq ra,sp,start
-    # imm = 0 - 8 = -8 --> 1111111111000 
-    # 11111110001000001000110011100011
-    # 11111110001000001000110011100011
 
     if len(instruction) != 4:
         print("Invalid format for B-type intruction")
@@ -303,8 +290,95 @@ def b_type(instruction, labels):
     encoding[5] = "1100011"
 
     # funct3
-    if _type in funct3:
-        encoding[3] = funct3[_type]
+    encoding[3] = funct3[_type]
+    
+    # label or imm
+    if not imm.isnumeric():
+        imm = str(labels[imm] - pc)
+        
+    if imm[0] == '-':
+        imm = int(imm[1:])
+        if imm > 4096:
+            print("Immediate value out of bounds")
+            return ""
+        l = int(math.log2(imm) + 1)
+        imm = bin((imm ^ ((1 << l) - 1)) + 1)[2:].zfill(l)
+        imm = '1' * (13 - l) + imm
     else:
+        imm = int(imm)
+        if imm > 4095:
+            print("Immediate value out of bounds")
+            return ""
+        imm = bin(imm)[2:]
+        imm = '0' * (13 - len(imm)) + imm
+    
+    # imm
+    encoding[0] = imm[0] + imm[2:8]
+    encoding[4] = imm[8:12] + imm[1]
+    
+    # registers
+    encoding[1] = register.mapping[rs2]
+    encoding[2] = register.mapping[rs1]
 
+    return ''.join(encoding)
+    
+    
+def j_type(instruction, labels, pc):
+    """
+    Docstring for j_type
 
+    -> ENCODING
+
+         ____________________________________________________________________________
+        |                [31:12]              |   [11:7]  |   [6:0]   |  Instruction | 
+        |        imm[20|10:1|11|19:12]        |     rd    |  opcode   |              |  
+        |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
+        |        imm[20|10:1|11|19:12]        |     rd    |  1101111  |      jal     |                         
+        |_____________________________________|___________|___________|______________|
+
+        -    INSTRUCTIONS
+            
+            jal rd, imm[20:1]
+            
+        - IF arg is LABEL -> we need its address
+        - IF NOT we just use the NUMERIC VALUE
+    """
+    
+    if len(instruction) != 3:
+        print("Invalid format for B-type intruction")
+        return ""
+    
+    _, rd, imm = instruction
+    
+    encoding = ['-'] * 3
+    
+    # opcode
+    encoding[2] = "1101111"
+    
+    # label or imm
+    if not imm.isnumeric():
+        imm = str(labels[imm] - pc)
+        
+    if imm[0] == '-':
+        imm = int(imm[1:])
+        if imm > 524288:
+            print("Immediate value out of bounds")
+            return ""
+        l = int(math.log2(imm) + 1)
+        imm = bin((imm ^ ((1 << l) - 1)) + 1)[2:].zfill(l)
+        imm = '1' * (21 - l) + imm
+    else:
+        imm = int(imm)
+        if imm > 524287:
+            print("Immediate value out of bounds")
+            return ""
+        imm = bin(imm)[2:]
+        imm = '0' * (21 - len(imm)) + imm
+        
+    # imm
+    encoding[0] = imm[0] + imm[10:20] + imm[9] + imm[1:8]
+    
+    # registers
+    encoding[1] = register.mapping(rd)
+    
+    return ''.join(encoding)
