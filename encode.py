@@ -293,7 +293,7 @@ def b_type(instruction, labels, pc):
     encoding[3] = funct3[_type]
     
     # label or imm
-    if not imm.isnumeric():
+    if imm in labels:
         imm = str(labels[imm] - pc)
         
     if imm[0] == '-':
@@ -356,7 +356,7 @@ def j_type(instruction, labels, pc):
     encoding[2] = "1101111"
     
     # label or imm
-    if not imm.isnumeric():
+    if imm in labels:
         imm = str(labels[imm] - pc)
         
     if imm[0] == '-':
@@ -376,9 +376,9 @@ def j_type(instruction, labels, pc):
         imm = '0' * (21 - len(imm)) + imm
         
     # imm
-    encoding[0] = imm[0] + imm[10:20] + imm[9] + imm[1:8]
+    encoding[0] = imm[0] + imm[10:20] + imm[9] + imm[1:9]
     
     # registers
-    encoding[1] = register.mapping(rd)
+    encoding[1] = register.mapping[rd]
     
     return ''.join(encoding)
