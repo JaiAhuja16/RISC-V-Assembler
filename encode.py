@@ -180,7 +180,7 @@ def i_type(instruction):
         
         
 def s_type(instruction):
-    """
+    """ 
     Docstring for s_type
 
     -> ENCODING
