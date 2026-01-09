@@ -345,7 +345,7 @@ def j_type(instruction, labels, pc):
     """
     
     if len(instruction) != 3:
-        print("Invalid format for B-type intruction")
+        print("Invalid format for J-type intruction")
         return ""
     
     _, rd, imm = instruction
