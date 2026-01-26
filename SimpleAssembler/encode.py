@@ -1,10 +1,10 @@
 import math
 import register
 
-funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111",
+funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111", "xor":"100",
           "lw":"010", "addi":"000", "jalr":"000",
           "sw":"010",
-          "beq":"000", "bne":"001", "blt":"100"}
+          "beq":"000", "bne":"001", "blt":"100", "bge":"101", "bltu":"110"}
 
 def r_type(instruction):
     """
@@ -21,7 +21,8 @@ def r_type(instruction):
         |   0000000     |    rs2   |   rs1   |    010    |    rd    |  0110011  |     slt      |                           
         |   0000000     |    rs2   |   rs1   |    101    |    rd    |  0110011  |     srl      |                           
         |   0000000     |    rs2   |   rs1   |    110    |    rd    |  0110011  |     or       |                           
-        |   0000000     |    rs2   |   rs1   |    111    |    rd    |  0110011  |     and      |                           
+        |   0000000     |    rs2   |   rs1   |    111    |    rd    |  0110011  |     and      |  
+        |   0000000     |    rs2   |   rs1   |    100    |    rd    |  0110011  |     xor      |                                                    
         |_______________|__________|_________|___________|__________|___________|______________|
 
         - opcode = 0110011
@@ -34,6 +35,7 @@ def r_type(instruction):
             srl rd, rs1, rs2
             or rd, rs1, rs2
             and rd, rs1, rs2
+            xor rd, rs1, rs2
 
     """
 
@@ -264,7 +266,9 @@ def b_type(instruction, labels, pc):
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
         |  imm[12|10:5] |    rs2   |   rs1   |    000    | imm[4:1|11] |  1100011  |     beq     |  
         |  imm[12|10:5] |    rs2   |   rs1   |    001    | imm[4:1|11] |  1100011  |     bne     |                      
-        |  imm[12|10:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |     blt     |                                          
+        |  imm[12|10:5] |    rs2   |   rs1   |    100    | imm[4:1|11] |  1100011  |     blt     | 
+        |  imm[12|10:5] |    rs2   |   rs1   |    101    | imm[4:1|11] |  1100011  |     bge     |   
+        |  imm[12|10:5] |    rs2   |   rs1   |    110    | imm[4:1|11] |  1100011  |     bltu    |                                                                                         
         |_______________|__________|_________|___________|_____________|___________|_____________|
 
         - opcode = 1100011
@@ -273,6 +277,9 @@ def b_type(instruction, labels, pc):
             
             beq rs1, rs2, imm[12:1]
             bne rs1, rs2, imm[12:1]
+            blt rs1, rs2, imm[12:1]
+            bge rs1, rs2, imm[12:1]
+            bltu rs1, rs2, imm[12:1]
 
         - IF arg is LABEL -> we need its address
         - IF NOT we just use the NUMERIC VALUE
