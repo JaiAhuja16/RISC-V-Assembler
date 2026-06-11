@@ -15,7 +15,6 @@ class Results:
 		totalMarksGained = 0
 		totalMarks = 0
 		for suite in res:
-			print(suite[0], end=": ")
 			print("Marks =", suite[1] * suite[-1], "out of", suite[2] * suite[-1])
 			if(self.VERBOSE):
 				print("Passed", suite[1], "out of", suite[2], "tests")

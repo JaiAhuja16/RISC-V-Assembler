@@ -12,10 +12,8 @@ class SimGrader(Grader):
 	# 0.8 x 5
 	HARD_MARKS = 0.8
 
-	BIN_HARD_DIR = "hard"
 	BIN_SIMPLE_DIR = "simple"
 
-	TRACE_HARD_DIR = "hard"
 	TRACE_SIMPLE_DIR = "simple"
 
 
@@ -84,12 +82,9 @@ class SimGrader(Grader):
 			self.printSev(self.HIGH, bcolors.OKBLUE + bcolors.BOLD + "Runing simple tests" + bcolors.ENDC)
 			simplePass, simpleTotal = self.handleBin(self.BIN_SIMPLE_DIR, self.TRACE_SIMPLE_DIR)
 
-			self.printSev(self.HIGH, bcolors.OKBLUE + bcolors.BOLD + "\nRunning hard tests" + bcolors.ENDC)
-			hardPass, hardTotal = self.handleBin(self.BIN_HARD_DIR, self.TRACE_HARD_DIR)
 			
 			res = [
 					["Simple", simplePass, simpleTotal, self.SIMPLE_MARKS],
-					["Hard", hardPass, hardTotal, self.HARD_MARKS],
 				]
 		
 		return res

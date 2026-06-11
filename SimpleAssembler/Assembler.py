@@ -7,7 +7,7 @@ if len(sys.argv) < 3:
 input_file = sys.argv[1]
 output_file = sys.argv[2]
 
-instructions = {"add":"R", "sub":"R", "slt":"R", "srl":"R", "or":"R", "and":"R", "xor":"R",
+instructions = {"add":"R", "sub":"R", "sll":"R", "slt":"R", "srl":"R", "or":"R", "and":"R", "xor":"R",
                 "lw":"I", "addi":"I", "jalr":"I",
                 "sw":"S",
                 "beq":"B", "bne":"B", "blt":"B", "bge":"B", "bltu":"B",

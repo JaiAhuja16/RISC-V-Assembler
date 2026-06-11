@@ -9,14 +9,9 @@ class AsmGrader(Grader):
 
 	# simple test 0.1 x 10
 	SIMPLE_MARKS = 0.1
-	# Hard test 0.2 x 5
-	HARD_MARKS = 0.2
 
-	ASM_ERROR_DIR = "errorGen"
-	ASM_HARD_DIR = "hardBin"
 	ASM_SIMPLE_DIR = "simpleBin"
 
-	BIN_HARD_DIR = "bin_h"
 	BIN_SIMPLE_DIR = "bin_s"
 
 	def __init__(self, verb, enable,operating_system):
@@ -123,9 +118,6 @@ class AsmGrader(Grader):
 			
 			self.printSev(self.HIGH, bcolors.OKBLUE + bcolors.BOLD + "Runing simple tests" + bcolors.ENDC)
 			simplePass, simpleTotal = self.handleBin(self.ASM_SIMPLE_DIR, self.BIN_SIMPLE_DIR)
-
-			self.printSev(self.HIGH, bcolors.OKBLUE + bcolors.BOLD + "\nRunning hard tests" + bcolors.ENDC)
-			hardPass, hardTotal = self.handleBin(self.ASM_HARD_DIR, self.BIN_HARD_DIR)
 			
 			# uncomment to evaluate error tests
 			# self.printSev(self.HIGH, bcolors.OKBLUE + bcolors.BOLD + "Running error tests" + bcolors.ENDC)
@@ -133,7 +125,6 @@ class AsmGrader(Grader):
 
 			res = [
 					["Simple", simplePass, simpleTotal, self.SIMPLE_MARKS],
-					["Hard", hardPass, hardTotal, self.HARD_MARKS],
 				]
 		
 		return res

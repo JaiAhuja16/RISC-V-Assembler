@@ -1,7 +1,7 @@
 import math
 import register
 
-funct3 = {"add":"000", "sub":"000", "slt":"010", "srl":"101", "or":"110", "and":"111", "xor":"100",
+funct3 = {"add":"000", "sub":"000", "sll":"001", "slt":"010", "srl":"101", "or":"110", "and":"111", "xor":"100",
           "lw":"010", "addi":"000", "jalr":"000",
           "sw":"010",
           "beq":"000", "bne":"001", "blt":"100", "bge":"101", "bltu":"110"}
@@ -17,7 +17,8 @@ def r_type(instruction):
         |    funct7     |    rs2   |   rs1   |  funct3   |    rd    |  opcode   |              |  
         |~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~|
         |   0000000     |    rs2   |   rs1   |    000    |    rd    |  0110011  |     add      |
-        |   0100000     |    rs2   |   rs1   |    000    |    rd    |  0110011  |     sub      |                           
+        |   0100000     |    rs2   |   rs1   |    000    |    rd    |  0110011  |     sub      |    
+        |   0000000     |    rs2   |   rs1   |    001    |    rd    |  0110011  |     sll      |                           
         |   0000000     |    rs2   |   rs1   |    010    |    rd    |  0110011  |     slt      |                           
         |   0000000     |    rs2   |   rs1   |    101    |    rd    |  0110011  |     srl      |                           
         |   0000000     |    rs2   |   rs1   |    110    |    rd    |  0110011  |     or       |                           
@@ -31,6 +32,7 @@ def r_type(instruction):
             
             add rd, rs1, rs2
             sub rd, rs1, rs2
+            sll rd, rs1, rs2
             slt rd, rs1, rs2
             srl rd, rs1, rs2
             or rd, rs1, rs2
