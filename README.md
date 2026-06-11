@@ -214,5 +214,8 @@ equal:
 end:
 ```
 
+## License
+
+MIT License
 
 ---
