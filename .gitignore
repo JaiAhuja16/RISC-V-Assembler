@@ -1,3 +1,9 @@
+__pycache__/
+*.py[cod]
+*.asm
+
+/automatedTesting/tests/user_traces/
+/automatedTesting/tests/user_bin_s/
+
 /input.txt
 /output.txt
-/__pycache__
